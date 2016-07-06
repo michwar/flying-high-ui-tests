@@ -12,46 +12,50 @@ import cucumber.api.java.Before;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
+import edu.iis.mto.bdd.cucumber.pages.Home;
+import edu.iis.mto.bdd.cucumber.pages.Login;
 import edu.iis.mto.bdd.model.FrequentFlyerMember;
 
 public class UserAuthenticationSteps {
-	private WebDriver driver ;
-	
+	private WebDriver driver;
+
 	@Before
-	public void init(){
+	public void init() {
 		driver = new FirefoxDriver();
 	}
-	
-    @Given("^(.*) is a registered Frequent Flyer$")
-    public void givenARegisteredFrequentFlyer(String userEmail) {}
 
-    @When("^(.*) authenticates with a valid email address and password$")
-    public void whenJaneAuthenticatesWithAValidEmailAddressAndPassword(String user) {
-    	driver.get("http://localhost:8080/#/welcome");
-    	driver.findElement(By.name("email")).sendKeys("janina.kowalska@acme.com");
-		driver.findElement(By.name("password")).sendKeys("s3cr3t");
-		driver.findElement(By.name("signin")).click();
-    }
+	@Given("^(.*) is a registered Frequent Flyer$")
+	public void givenARegisteredFrequentFlyer(String userEmail) {
+	}
 
-    @Then("^(.*) should be given access to (?:her|his) account$")
-    public void thenTheUserShouldBeGivenAccessToAccount(String userName) {
-    	assertThat(driver.findElement(By.id("welcome-message")).getText(), equalTo("Witaj Janina"));    	
-    }
+	@When("^(.*) authenticates with a valid email address and password$")
+	public void whenJaneAuthenticatesWithAValidEmailAddressAndPassword(FrequentFlyerMember user) {
+		Login loginPage = new Login(driver);
+		loginPage.openLoginPage();
+		loginPage.logInWithUserEmailAndUserPassword(user.getEmail(), user.getPassword());
+	}
 
-    @Given("^(.*) has logged on$")
-    public void aUserHasLoggedOnAs(String user) {
-    	driver.get("http://localhost:8080/#/welcome");
-    	driver.findElement(By.name("email")).sendKeys("janina.kowalska@acme.com");
-		driver.findElement(By.name("password")).sendKeys("s3cr3t");
-		driver.findElement(By.name("signin")).click();
-    }
+	@Then("^(.*) should be given access to (?:her|his) account$")
+	public void thenTheUserShouldBeGivenAccessToAccount(FrequentFlyerMember user) {
+		Home homePage = new Home(driver);
+		homePage.openHomePage();
+		homePage.checkMessage(user.getFirstName());
+	}
 
-    @When("^(?:.*) views the home page$")
-    public void whenAUserViewsTheHomePage() {}
-    
-    @After
-    public void close(){
-    	driver.close();
-    }
+	@Given("^(.*) has logged on$")
+	public void aUserHasLoggedOnAs(FrequentFlyerMember user) {
+		Login loginPage = new Login(driver);
+		loginPage.openLoginPage();
+		loginPage.logInWithUserEmailAndUserPassword(user.getEmail(), user.getPassword());
+	}
+
+	@When("^(?:.*) views the home page$")
+	public void whenAUserViewsTheHomePage() {
+	}
+
+	@After
+	public void close() {
+		driver.close();
+	}
 
 }
